@@ -1,0 +1,30 @@
+/* Custom Valentine Styling */
+.stApp {
+    background: linear-gradient(rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.8)), 
+                url("https://www.transparenttextures.com/patterns/cubes.png");
+    background-color: #fff0f3;
+}
+
+h1 {
+    color: #ff4d6d !important;
+    font-family: 'Comic Sans MS', cursive;
+    text-shadow: 2px 2px #ffb3c1;
+}
+
+/* Make the camera container circular and cute */
+[data-testid="stCameraInput"] {
+    border: 5px solid #ff4d6d;
+    border-radius: 30px;
+    overflow: hidden;
+}
+
+/* Style the buttons to look like candy */
+div.stButton > button {
+    background-color: #ff4d6d !important;
+    color: white !important;
+    border-radius: 50px !important;
+    width: 100%;
+    border: none;
+    font-weight: bold;
+}
+
