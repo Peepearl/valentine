@@ -2,7 +2,9 @@ import streamlit as st
 import streamlit.components.v1 as components
 import base64
 
-# Page config
+# ----------------------------
+# PAGE CONFIG
+# ----------------------------
 st.set_page_config(
     page_title="💖 Will You Be My Valentine?",
     page_icon="💖",
@@ -42,13 +44,13 @@ valentine_html = f"""
 <head>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
-        
+
         * {{
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }}
-        
+
         body {{
             font-family: 'Poppins', sans-serif;
             background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
@@ -58,64 +60,66 @@ valentine_html = f"""
             align-items: center;
             overflow: hidden;
         }}
-        
+
         .container {{
             background: white;
             padding: 60px 80px;
             border-radius: 30px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
             text-align: center;
-            max-width: 550px;
+            width: 550px;
+            max-width: 90%;
             position: relative;
+            overflow: hidden;
         }}
-        
+
         .bear {{
             font-size: 120px;
             margin-bottom: 20px;
             animation: float 3s ease-in-out infinite;
         }}
-        
+
         @keyframes float {{
             0%, 100% {{ transform: translateY(0); }}
             50% {{ transform: translateY(-20px); }}
         }}
-        
+
         h1 {{
             font-size: 28px;
             color: #333;
             margin-bottom: 40px;
             font-weight: 600;
         }}
-        
+
         .buttons {{
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 30px;
-            margin-bottom: 30px;
             position: relative;
-            height: 120px;
+            width: 100%;
+            height: 160px;
+            margin-bottom: 30px;
         }}
-        
+
         .yes-btn {{
             background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
             color: white;
             border: none;
-            padding: 20px 60px;
-            font-size: 24px;
+            padding: 18px 55px;
+            font-size: 22px;
             font-weight: 700;
             border-radius: 50px;
             cursor: pointer;
             box-shadow: 0 10px 30px rgba(245, 87, 108, 0.4);
-            transition: all 0.3s ease;
+            transition: transform 0.2s ease;
             font-family: 'Poppins', sans-serif;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
         }}
-        
+
         .yes-btn:hover {{
-            transform: scale(1.1);
             box-shadow: 0 15px 40px rgba(245, 87, 108, 0.6);
         }}
-        
+
         .no-btn {{
             background: #f0f0f0;
             color: #666;
@@ -127,28 +131,29 @@ valentine_html = f"""
             cursor: pointer;
             font-family: 'Poppins', sans-serif;
             position: absolute;
-            transition: none !important;
+            left: 65%;
+            top: 55%;
         }}
 
         .no-btn:hover {{
             background: #e0e0e0;
         }}
-        
+
         .message {{
             color: #999;
             font-size: 14px;
             font-style: italic;
         }}
-        
+
         .success {{
             display: none;
         }}
-        
+
         .success.show {{
             display: block;
             animation: zoomIn 0.5s ease-out;
         }}
-        
+
         @keyframes zoomIn {{
             from {{
                 opacity: 0;
@@ -159,20 +164,20 @@ valentine_html = f"""
                 transform: scale(1);
             }}
         }}
-        
+
         .success h2 {{
             font-size: 48px;
             color: #f5576c;
             margin-bottom: 20px;
         }}
-        
+
         .success img {{
             max-width: 100%;
             border-radius: 20px;
             margin-top: 20px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
         }}
-        
+
         .confetti {{
             position: fixed;
             width: 10px;
@@ -190,15 +195,15 @@ valentine_html = f"""
         <div id="question" class="question">
             <div class="bear">💖</div>
             <h1><span id="name">Hello babe</span> will you be my valentine?</h1>
-            
+
             <div class="buttons">
-                <button class="yes-btn" onclick="sayYes()">Yes</button>
-                <button class="no-btn" id="noBtn" onmousemove="moveButton()">No</button>
+                <button class="yes-btn" id="yesBtn" onclick="sayYes()">Yes</button>
+                <button class="no-btn" id="noBtn">No</button>
             </div>
-            
-            <p class="message">*The No button has been replaced by extra hugs. 🤗💖</p>
+
+            <p class="message">*The No button has been replaced by extra hugs 🤗💖</p>
         </div>
-        
+
 
         <!-- SECOND PAGE -->
         <div id="success" class="success">
@@ -208,7 +213,7 @@ valentine_html = f"""
 
             <h2>YAY! 🎉</h2>
 
-            <!-- AUDIO (hidden) -->
+            <!-- AUDIO -->
             <audio id="loveAudio">
                 <source src="data:audio/mpeg;base64,{audio_base64}" type="audio/mpeg">
             </audio>
@@ -225,38 +230,68 @@ valentine_html = f"""
         const name = 'Hello babe';
         document.getElementById('name').textContent = name;
 
+        const noBtn = document.getElementById("noBtn");
+        const yesBtn = document.getElementById("yesBtn");
+        const buttonsBox = document.querySelector(".buttons");
+
+        let yesSize = 1.0;
+        const maxYesSize = 1.35; // LIMIT YES SIZE
+
         function getRandomPosition() {{
-            const container = document.querySelector('.container');
-            const button = document.getElementById('noBtn');
-            const containerRect = container.getBoundingClientRect();
-            const buttonRect = button.getBoundingClientRect();
+            const boxRect = buttonsBox.getBoundingClientRect();
+            const btnRect = noBtn.getBoundingClientRect();
 
-            const maxX = containerRect.width - buttonRect.width - 50;
-            const maxY = 120;
+            const maxX = boxRect.width - btnRect.width;
+            const maxY = boxRect.height - btnRect.height;
 
-            const randomX = Math.random() * maxX - maxX/2;
-            const randomY = Math.random() * maxY - maxY/2;
+            const randomX = Math.random() * maxX;
+            const randomY = Math.random() * maxY;
 
             return {{ x: randomX, y: randomY }};
         }}
 
-        // MOVE NO BUTTON FAST
         function moveButton() {{
-            const button = document.getElementById('noBtn');
             const pos = getRandomPosition();
 
-            button.style.transform = `translate(${{pos.x}}px, ${{pos.y}}px)`;
+            noBtn.style.left = pos.x + "px";
+            noBtn.style.top = pos.y + "px";
+
+            // YES grows but limited
+            yesSize += 0.05;
+            if (yesSize > maxYesSize) yesSize = maxYesSize;
+
+            yesBtn.style.transform = "translate(-50%, -50%) scale(" + yesSize + ")";
         }}
+
+        // Laptop: move away when cursor comes close
+        document.addEventListener("mousemove", function(e) {{
+            const btnRect = noBtn.getBoundingClientRect();
+
+            const btnX = btnRect.left + btnRect.width / 2;
+            const btnY = btnRect.top + btnRect.height / 2;
+
+            const distance = Math.sqrt(
+                Math.pow(e.clientX - btnX, 2) + Math.pow(e.clientY - btnY, 2)
+            );
+
+            if (distance < 160) {{
+                moveButton();
+            }}
+        }});
+
+        // Mobile: move away when touched
+        noBtn.addEventListener("touchstart", function(e) {{
+            e.preventDefault();
+            moveButton();
+        }});
 
         function sayYes() {{
             document.getElementById('question').style.display = 'none';
             document.getElementById('success').classList.add('show');
 
-            // PLAY AUDIO ONLY ON SECOND PAGE
             const audio = document.getElementById("loveAudio");
             audio.play();
 
-            // CONFETTI
             for (let i = 0; i < 150; i++) {{
                 setTimeout(() => createConfetti(), i * 30);
             }}
@@ -292,5 +327,4 @@ valentine_html = f"""
 </html>
 """
 
-# Display Valentine app
 components.html(valentine_html, height=1000, scrolling=False)
